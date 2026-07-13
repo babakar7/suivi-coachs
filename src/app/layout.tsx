@@ -14,11 +14,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Suivi des heures",
-  description: "Suivi des heures de pratique et d'observation des coachs",
+  description:
+    "Suivi des heures de pratique, d'enseignement et d'observation des coachs",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#faf9f7",
+  themeColor: "#fbf6f0",
 };
 
 export default function RootLayout({

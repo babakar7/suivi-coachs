@@ -14,13 +14,17 @@ function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export async function addSession(
-  coachId: string,
-  _prev: ActionState,
-  formData: FormData
-): Promise<ActionState> {
-  if (!isUuid(coachId)) return { ok: false, error: "Coach introuvable." };
+type ParsedSession =
+  | {
+      ok: true;
+      date: string;
+      equipment: Equipment;
+      sessionType: SessionType;
+      hours: number;
+    }
+  | { ok: false; error: string };
 
+function parseSessionForm(formData: FormData): ParsedSession {
   const date = String(formData.get("session_date") ?? "");
   const equipment = String(formData.get("equipment") ?? "") as Equipment;
   const sessionType = String(formData.get("session_type") ?? "") as SessionType;
@@ -48,11 +52,67 @@ export async function addSession(
     };
   }
 
+  return { ok: true, date, equipment, sessionType, hours };
+}
+
+export async function addSession(
+  coachId: string,
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  if (!isUuid(coachId)) return { ok: false, error: "Coach introuvable." };
+
+  const parsed = parseSessionForm(formData);
+  if (!parsed.ok) return { ok: false, error: parsed.error };
+
   await query(
     `insert into sessions (coach_id, session_date, equipment, session_type, hours)
      values ($1, $2, $3, $4, $5)`,
-    [coachId, date, equipment, sessionType, hours]
+    [
+      coachId,
+      parsed.date,
+      parsed.equipment,
+      parsed.sessionType,
+      parsed.hours,
+    ]
   );
+
+  revalidatePath(`/coach/${coachId}`);
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+export async function updateSession(
+  sessionId: string,
+  coachId: string,
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  if (!isUuid(sessionId) || !isUuid(coachId)) {
+    return { ok: false, error: "Séance introuvable." };
+  }
+
+  const parsed = parseSessionForm(formData);
+  if (!parsed.ok) return { ok: false, error: parsed.error };
+
+  const result = await query(
+    `update sessions
+     set session_date = $1, equipment = $2, session_type = $3, hours = $4
+     where id = $5 and coach_id = $6
+     returning id`,
+    [
+      parsed.date,
+      parsed.equipment,
+      parsed.sessionType,
+      parsed.hours,
+      sessionId,
+      coachId,
+    ]
+  );
+
+  if (result.length === 0) {
+    return { ok: false, error: "Séance introuvable." };
+  }
 
   revalidatePath(`/coach/${coachId}`);
   revalidatePath("/admin");

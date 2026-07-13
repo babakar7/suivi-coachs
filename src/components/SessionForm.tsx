@@ -1,14 +1,17 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { addSession } from "@/app/actions";
 import {
   EQUIPMENT_LIST,
   EQUIPMENT_LABELS,
   TYPE_LIST,
   TYPE_LABELS_SHORT,
+  equipmentMatters,
+  getOvershoot,
+  overshootMessage,
 } from "@/lib/targets";
-import type { ActionState, Equipment, SessionType } from "@/lib/types";
+import type { ActionState, Equipment, Progress, SessionType } from "@/lib/types";
 
 const QUICK_HOURS = ["0,5", "1", "1,5", "2"];
 
@@ -19,14 +22,20 @@ function localToday(): string {
 }
 
 function segmentClass(selected: boolean): string {
-  return `min-h-11 flex-1 rounded-lg px-2 text-[14px] font-medium transition-colors duration-150 ${
+  return `min-h-11 flex-1 rounded-lg px-2 text-[13px] font-medium transition-colors duration-150 ${
     selected
       ? "bg-accent text-white"
       : "bg-black/[0.04] text-secondary hover:bg-black/[0.07]"
   }`;
 }
 
-export default function SessionForm({ coachId }: { coachId: string }) {
+export default function SessionForm({
+  coachId,
+  progress,
+}: {
+  coachId: string;
+  progress: Progress;
+}) {
   const boundAction = addSession.bind(null, coachId);
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     boundAction,
@@ -39,6 +48,14 @@ export default function SessionForm({ coachId }: { coachId: string }) {
   const [saved, setSaved] = useState(false);
   const submitCount = useRef(0);
   const lastSubmitSeen = useRef(0);
+
+  const showEquipmentDetail = equipmentMatters(sessionType);
+  const hoursNum = Number(String(hours).replace(",", "."));
+
+  const overshoot = useMemo(
+    () => getOvershoot(progress, sessionType, equipment, hoursNum),
+    [progress, sessionType, equipment, hoursNum]
+  );
 
   useEffect(() => {
     if (state.ok && submitCount.current > lastSubmitSeen.current) {
@@ -78,6 +95,26 @@ export default function SessionForm({ coachId }: { coachId: string }) {
 
         <fieldset>
           <legend className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
+            Type de séance
+          </legend>
+          <input type="hidden" name="session_type" value={sessionType} />
+          <div className="flex flex-wrap gap-2">
+            {TYPE_LIST.map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setSessionType(t)}
+                aria-pressed={sessionType === t}
+                className={segmentClass(sessionType === t)}
+              >
+                {TYPE_LABELS_SHORT[t]}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
             Équipement
           </legend>
           <input type="hidden" name="equipment" value={equipment} />
@@ -94,26 +131,18 @@ export default function SessionForm({ coachId }: { coachId: string }) {
               </button>
             ))}
           </div>
-        </fieldset>
-
-        <fieldset>
-          <legend className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
-            Type de séance
-          </legend>
-          <input type="hidden" name="session_type" value={sessionType} />
-          <div className="flex gap-2">
-            {TYPE_LIST.map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setSessionType(t)}
-                aria-pressed={sessionType === t}
-                className={segmentClass(sessionType === t)}
-              >
-                {TYPE_LABELS_SHORT[t]}
-              </button>
-            ))}
-          </div>
+          {!showEquipmentDetail && (
+            <p className="mt-2 text-[12px] text-muted">
+              {sessionType === "pratique"
+                ? "Les heures de pratique comptent ensemble (reformer + sol), objectif 20 h."
+                : "Les heures d'observation comptent ensemble, objectif 10 h."}
+            </p>
+          )}
+          {showEquipmentDetail && (
+            <p className="mt-2 text-[12px] text-muted">
+              Objectif : 10 h reformer et 10 h sol.
+            </p>
+          )}
         </fieldset>
 
         <fieldset>
@@ -147,6 +176,15 @@ export default function SessionForm({ coachId }: { coachId: string }) {
           />
         </fieldset>
 
+        {overshoot && (
+          <p
+            role="status"
+            className="rounded-lg border border-accent/25 bg-accent-soft px-3 py-2 text-[13px] text-accent-strong"
+          >
+            {overshootMessage(overshoot)}
+          </p>
+        )}
+
         {state.error && (
           <p className="rounded-lg bg-danger/[0.08] px-3 py-2 text-[13px] text-danger">
             {state.error}
@@ -164,7 +202,9 @@ export default function SessionForm({ coachId }: { coachId: string }) {
             ? "Enregistrement…"
             : saved
               ? "Séance enregistrée ✓"
-              : "Enregistrer la séance"}
+              : overshoot
+                ? "Enregistrer quand même"
+                : "Enregistrer la séance"}
         </button>
       </div>
     </form>

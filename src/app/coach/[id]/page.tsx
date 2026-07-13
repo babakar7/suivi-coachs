@@ -4,13 +4,16 @@ import { computeProgress, getCoach, getSessions } from "@/lib/queries";
 import {
   EQUIPMENT_LIST,
   EQUIPMENT_LABELS,
-  TARGETS,
+  ENSEIGNEMENT_TARGETS,
   GRAND_TOTAL,
+  OBSERVATION_TARGET,
+  PRATIQUE_TARGET,
   TYPE_LABELS,
   formatHours,
   totalHours,
 } from "@/lib/targets";
 import ProgressBar from "@/components/ProgressBar";
+import RemainingHours from "@/components/RemainingHours";
 import SessionForm from "@/components/SessionForm";
 import SessionList from "@/components/SessionList";
 import RememberCoach from "@/components/RememberCoach";
@@ -83,37 +86,67 @@ export default async function CoachPage({
       </section>
 
       <section className="flex flex-col gap-3">
-        {EQUIPMENT_LIST.map((eq) => (
-          <div
-            key={eq}
-            className="rounded-xl border border-border-subtle bg-surface p-4"
-          >
-            <h3 className="text-[15px] font-semibold tracking-tight">
-              {EQUIPMENT_LABELS[eq]}
-            </h3>
-            <div className="mt-3 flex flex-col gap-3">
-              <ProgressBar
-                label={TYPE_LABELS.pratique}
-                value={progress[eq].pratique}
-                target={TARGETS[eq].pratique}
-              />
-              <ProgressBar
-                label={TYPE_LABELS.observation}
-                value={progress[eq].observation}
-                target={TARGETS[eq].observation}
-              />
-            </div>
+        <div className="rounded-xl border border-border-subtle bg-surface p-4">
+          <h3 className="text-[15px] font-semibold tracking-tight">
+            {TYPE_LABELS.pratique}
+          </h3>
+          <p className="mt-0.5 text-[12px] text-muted">
+            Reformer et sol · objectif {formatHours(PRATIQUE_TARGET)}
+          </p>
+          <div className="mt-3">
+            <ProgressBar
+              label="Total"
+              value={progress.pratique}
+              target={PRATIQUE_TARGET}
+            />
           </div>
-        ))}
+        </div>
+
+        <div className="rounded-xl border border-border-subtle bg-surface p-4">
+          <h3 className="text-[15px] font-semibold tracking-tight">
+            {TYPE_LABELS.enseignement}
+          </h3>
+          <p className="mt-0.5 text-[12px] text-muted">
+            10 h reformer et 10 h sol
+          </p>
+          <div className="mt-3 flex flex-col gap-3">
+            {EQUIPMENT_LIST.map((eq) => (
+              <ProgressBar
+                key={eq}
+                label={EQUIPMENT_LABELS[eq]}
+                value={progress.enseignement[eq]}
+                target={ENSEIGNEMENT_TARGETS[eq]}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border-subtle bg-surface p-4">
+          <h3 className="text-[15px] font-semibold tracking-tight">
+            {TYPE_LABELS.observation}
+          </h3>
+          <p className="mt-0.5 text-[12px] text-muted">
+            Objectif {formatHours(OBSERVATION_TARGET)}
+          </p>
+          <div className="mt-3">
+            <ProgressBar
+              label="Total"
+              value={progress.observation}
+              target={OBSERVATION_TARGET}
+            />
+          </div>
+        </div>
       </section>
 
-      <SessionForm coachId={coach.id} />
+      <RemainingHours progress={progress} />
+
+      <SessionForm coachId={coach.id} progress={progress} />
 
       <section>
         <h2 className="mb-3 text-[16px] font-semibold tracking-tight">
           Historique
         </h2>
-        <SessionList sessions={sessions} />
+        <SessionList sessions={sessions} progress={progress} />
       </section>
     </main>
   );

@@ -5,10 +5,11 @@ import { getAllCoaches, getAllProgress } from "@/lib/queries";
 import {
   EQUIPMENT_LIST,
   EQUIPMENT_LABELS,
-  TARGETS,
+  ENSEIGNEMENT_TARGETS,
   GRAND_TOTAL,
+  OBSERVATION_TARGET,
+  PRATIQUE_TARGET,
   TYPE_LABELS_SHORT,
-  TYPE_LIST,
   emptyProgress,
   formatHours,
   totalHours,
@@ -111,31 +112,60 @@ export default async function AdminPage() {
                 </div>
 
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  {EQUIPMENT_LIST.map((eq) => (
-                    <div
-                      key={eq}
-                      className="rounded-lg bg-black/[0.03] px-2.5 py-2"
+                  <div className="rounded-lg bg-black/[0.03] px-2.5 py-2">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+                      {TYPE_LABELS_SHORT.pratique}
+                    </p>
+                    <p
+                      className={`mt-1 font-mono text-[12px] tabular-nums ${
+                        progress.pratique >= PRATIQUE_TARGET
+                          ? "text-success"
+                          : "text-secondary"
+                      }`}
                     >
-                      <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
-                        {EQUIPMENT_LABELS[eq]}
-                      </p>
-                      {TYPE_LIST.map((t) => {
-                        const done = progress[eq][t] >= TARGETS[eq][t];
-                        return (
-                          <p
-                            key={t}
-                            className={`mt-1 font-mono text-[12px] tabular-nums ${
-                              done ? "text-success" : "text-secondary"
-                            }`}
-                          >
-                            {TYPE_LABELS_SHORT[t].slice(0, 3)}.{" "}
-                            {formatHours(progress[eq][t])} /{" "}
-                            {formatHours(TARGETS[eq][t])}
-                          </p>
-                        );
-                      })}
-                    </div>
-                  ))}
+                      {formatHours(progress.pratique)} /{" "}
+                      {formatHours(PRATIQUE_TARGET)}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-muted">Ref. + sol</p>
+                  </div>
+
+                  <div className="rounded-lg bg-black/[0.03] px-2.5 py-2">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+                      {TYPE_LABELS_SHORT.enseignement}
+                    </p>
+                    {EQUIPMENT_LIST.map((eq) => {
+                      const done =
+                        progress.enseignement[eq] >= ENSEIGNEMENT_TARGETS[eq];
+                      return (
+                        <p
+                          key={eq}
+                          className={`mt-1 font-mono text-[12px] tabular-nums ${
+                            done ? "text-success" : "text-secondary"
+                          }`}
+                        >
+                          {EQUIPMENT_LABELS[eq].slice(0, 3)}.{" "}
+                          {formatHours(progress.enseignement[eq])} /{" "}
+                          {formatHours(ENSEIGNEMENT_TARGETS[eq])}
+                        </p>
+                      );
+                    })}
+                  </div>
+
+                  <div className="rounded-lg bg-black/[0.03] px-2.5 py-2">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+                      {TYPE_LABELS_SHORT.observation}
+                    </p>
+                    <p
+                      className={`mt-1 font-mono text-[12px] tabular-nums ${
+                        progress.observation >= OBSERVATION_TARGET
+                          ? "text-success"
+                          : "text-secondary"
+                      }`}
+                    >
+                      {formatHours(progress.observation)} /{" "}
+                      {formatHours(OBSERVATION_TARGET)}
+                    </p>
+                  </div>
                 </div>
 
                 <form

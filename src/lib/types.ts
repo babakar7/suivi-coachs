@@ -1,5 +1,5 @@
-export type Equipment = "reformer" | "tapis" | "chaise";
-export type SessionType = "pratique" | "observation";
+export type Equipment = "reformer" | "sol";
+export type SessionType = "pratique" | "enseignement" | "observation";
 
 export interface Coach {
   id: string;
@@ -16,8 +16,17 @@ export interface Session {
   hours: number;
 }
 
-/** Hours accumulated per equipment and session type. */
-export type Progress = Record<Equipment, Record<SessionType, number>>;
+/**
+ * Accumulated hours.
+ * - pratique: total across reformer + sol (target 20h)
+ * - enseignement: per equipment (10h reformer + 10h sol)
+ * - observation: total across reformer + sol (target 10h)
+ */
+export interface Progress {
+  pratique: number;
+  enseignement: Record<Equipment, number>;
+  observation: number;
+}
 
 export interface ActionState {
   ok: boolean;

@@ -1,5 +1,5 @@
-create type equipment as enum ('reformer', 'tapis', 'chaise');
-create type session_type as enum ('pratique', 'observation');
+create type equipment as enum ('reformer', 'sol');
+create type session_type as enum ('pratique', 'enseignement', 'observation');
 
 create table coaches (
   id         uuid primary key default gen_random_uuid(),

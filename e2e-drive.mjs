@@ -47,12 +47,12 @@ await page.click('a:has-text("Coach Test")');
 await page.waitForSelector("text=Progression totale");
 step("coach page renders", true);
 
-// 8. log 1.5h Reformer / Pratique
+// 8. log 1.5h Pratique / Reformer
 await page.click('button:has-text("1,5 h")');
 await page.click('button:has-text("Enregistrer la séance")');
 await page.waitForSelector("text=Séance enregistrée");
-await page.waitForSelector('text=1,5 h / 57 h');
-step("1,5h Reformer/Pratique logged; total 1,5/57 shown", true);
+await page.waitForSelector("text=1,5 h / 50 h");
+step("1,5h Pratique logged; total 1,5/50 shown", true);
 await page.screenshot({ path: `${SHOTS}/02-coach-after-first.png` });
 
 // 9. continue banner remembers coach
@@ -68,7 +68,7 @@ await page.click('button:has-text("Enregistrer la séance")');
 await page.waitForSelector("text=La date ne peut pas être dans le futur");
 step("future date rejected with French error", true);
 
-// 11. validation: 0 hours rejected (HTML min blocks it; force via fill 0 then check validity)
+// 11. validation: 0 hours rejected (HTML min blocks it)
 await page.fill('input[name="session_date"]', "2026-07-09");
 const blocked = await page.evaluate(() => {
   const input = document.querySelector('input[name="hours"]');
@@ -77,26 +77,25 @@ const blocked = await page.evaluate(() => {
 });
 step("0 hours blocked by client-side validation", blocked);
 
-// 12. fill all buckets to targets: reformer done via +20.5 pratique & +5 obs, etc.
+// 12. fill remaining targets → 50h
+// already 1.5 pratique; need 18.5 more + 10+10 enseignement + 10 observation
 const fillers = [
-  ["Reformer", "Pratique", "10"], // 1.5 already → 11.5
-  ["Reformer", "Pratique", "10.5"], // → 22 (done)
-  ["Reformer", "Observation", "5"],
-  ["Tapis", "Pratique", "12"],
-  ["Tapis", "Observation", "3"],
-  ["Chaise", "Pratique", "12"],
-  ["Chaise", "Observation", "3"],
+  ["Pratique", "Reformer", "10"], // → 11.5
+  ["Pratique", "Sol", "8.5"], // → 20 pratique
+  ["Enseignement", "Reformer", "10"],
+  ["Enseignement", "Sol", "10"],
+  ["Observation", "Reformer", "10"],
 ];
-for (const [eq, type, hours] of fillers) {
-  await page.click(`fieldset:has(legend:text("Équipement")) button:has-text("${eq}")`);
-  await page.click(`fieldset:has(legend:text("Type de séance")) button:has-text("${type}")`);
+for (const [type, eq, hours] of fillers) {
+  await page.click(`fieldset:has(legend:text-matches("Type de séance")) button:has-text("${type}")`);
+  await page.click(`fieldset:has(legend:text-matches("Équipement")) button:has-text("${eq}")`);
   await page.fill('input[name="hours"]', hours);
   await page.click('button:has-text("Enregistrer la séance")');
   await page.waitForSelector("text=Séance enregistrée");
   await page.waitForTimeout(300);
 }
 await page.waitForSelector("text=Félicitations, objectif atteint");
-step("57h reached shows completion state", true);
+step("50h reached shows completion state", true);
 await page.screenshot({ path: `${SHOTS}/03-coach-complete.png`, fullPage: true });
 
 // 13. delete an entry → total decreases
@@ -106,14 +105,14 @@ await page.click('ul li:first-child button[aria-label="Supprimer cette séance"]
 await page.waitForSelector("text=Félicitations", { state: "detached", timeout: 5000 }).catch(() => {});
 await page.waitForTimeout(800);
 const totalText = await page.textContent("main section:first-of-type span.font-mono");
-step("delete entry decreases total", totalText.includes("54"), `before=${before?.trim()} after=${totalText?.trim()}`);
+step("delete entry decreases total", totalText.includes("40"), `before=${before?.trim()} after=${totalText?.trim()}`);
 await page.screenshot({ path: `${SHOTS}/04-after-delete.png` });
 
 // 14. admin dashboard reflects totals
 await page.goto(`${BASE}/admin`);
 await page.waitForSelector('article:has-text("Coach Test")');
 const card = await page.textContent('article:has-text("Coach Test")');
-step("admin card shows 54h and 95%", card.includes("54") && card.includes("95"), card.replace(/\s+/g, " ").slice(0, 160));
+step("admin card shows 40h and 80%", card.includes("40") && card.includes("80"), card.replace(/\s+/g, " ").slice(0, 160));
 await page.screenshot({ path: `${SHOTS}/05-admin.png`, fullPage: true });
 
 // 15. archive coach → disappears from home

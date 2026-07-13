@@ -42,7 +42,13 @@ export async function getSessions(coachId: string): Promise<Session[]> {
 export function computeProgress(sessions: Session[]): Progress {
   const progress = emptyProgress();
   for (const s of sessions) {
-    progress[s.equipment][s.session_type] += s.hours;
+    if (s.session_type === "pratique") {
+      progress.pratique += s.hours;
+    } else if (s.session_type === "enseignement") {
+      progress.enseignement[s.equipment] += s.hours;
+    } else {
+      progress.observation += s.hours;
+    }
   }
   return progress;
 }
@@ -61,7 +67,13 @@ export async function getAllProgress(): Promise<Map<string, Progress>> {
   const map = new Map<string, Progress>();
   for (const row of rows) {
     const progress = map.get(row.coach_id) ?? emptyProgress();
-    progress[row.equipment][row.session_type] = row.total;
+    if (row.session_type === "pratique") {
+      progress.pratique += row.total;
+    } else if (row.session_type === "enseignement") {
+      progress.enseignement[row.equipment] += row.total;
+    } else {
+      progress.observation += row.total;
+    }
     map.set(row.coach_id, progress);
   }
   return map;
