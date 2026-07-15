@@ -57,7 +57,6 @@ export default function SessionForm({
   const [hours, setHours] = useState("1");
   const [dateChoice, setDateChoice] = useState<DateChoice>("today");
   const [customDate, setCustomDate] = useState(localTodayISO);
-  const [showEquipment, setShowEquipment] = useState(false);
   const [saved, setSaved] = useState(false);
   const [milestone, setMilestone] = useState<Milestone | null>(null);
   const [praise, setPraise] = useState<string | null>(null);
@@ -75,7 +74,6 @@ export default function SessionForm({
     setSessionType(prefs.sessionType);
     setEquipment(prefs.equipment);
     setHours(prefs.hours);
-    if (equipmentMatters(prefs.sessionType)) setShowEquipment(true);
     setHydrated(true);
   }, []);
 
@@ -127,7 +125,6 @@ export default function SessionForm({
 
   function selectType(t: SessionType) {
     setSessionType(t);
-    if (equipmentMatters(t)) setShowEquipment(true);
   }
 
   return (
@@ -242,46 +239,29 @@ export default function SessionForm({
 
         <input type="hidden" name="equipment" value={equipment} />
 
-        {(needsEquipment || showEquipment) && (
-          <fieldset>
-            <legend className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
-              Équipement
-              {needsEquipment && (
-                <span className="ml-1 font-normal normal-case tracking-normal text-muted">
-                  (requis pour l&apos;enseignement)
-                </span>
-              )}
-            </legend>
-            <div className="flex gap-2">
-              {EQUIPMENT_LIST.map((eq) => (
-                <button
-                  key={eq}
-                  type="button"
-                  onClick={() => setEquipment(eq)}
-                  aria-pressed={equipment === eq}
-                  className={segmentClass(equipment === eq)}
-                >
-                  {EQUIPMENT_LABELS[eq]}
-                </button>
-              ))}
-            </div>
-            {needsEquipment && (
-              <p className="mt-2 text-[12px] text-muted">
-                Objectif : 10 h reformer et 10 h sol.
-              </p>
-            )}
-          </fieldset>
-        )}
-
-        {!needsEquipment && !showEquipment && (
-          <button
-            type="button"
-            onClick={() => setShowEquipment(true)}
-            className="self-start text-[13px] font-medium text-accent transition-colors hover:text-accent-strong"
-          >
-            Préciser l&apos;équipement (optionnel)
-          </button>
-        )}
+        <fieldset>
+          <legend className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
+            Équipement
+          </legend>
+          <div className="flex gap-2">
+            {EQUIPMENT_LIST.map((eq) => (
+              <button
+                key={eq}
+                type="button"
+                onClick={() => setEquipment(eq)}
+                aria-pressed={equipment === eq}
+                className={segmentClass(equipment === eq)}
+              >
+                {EQUIPMENT_LABELS[eq]}
+              </button>
+            ))}
+          </div>
+          {needsEquipment && (
+            <p className="mt-2 text-[12px] text-muted">
+              Objectif : 10 h reformer et 10 h sol.
+            </p>
+          )}
+        </fieldset>
 
         {overshoot && (
           <p
