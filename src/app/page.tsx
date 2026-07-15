@@ -1,11 +1,27 @@
 import Link from "next/link";
-import { getActiveCoaches } from "@/lib/queries";
+import { getActiveCoaches, getAllProgress } from "@/lib/queries";
 import ContinueBanner from "@/components/ContinueBanner";
+import CoachHomeList from "@/components/CoachHomeList";
+import type { Progress } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
+function progressToRecord(
+  map: Map<string, Progress>
+): Record<string, Progress> {
+  const record: Record<string, Progress> = {};
+  for (const [id, progress] of map) {
+    record[id] = progress;
+  }
+  return record;
+}
+
 export default async function HomePage() {
-  const coaches = await getActiveCoaches();
+  const [coaches, progressByCoach] = await Promise.all([
+    getActiveCoaches(),
+    getAllProgress(),
+  ]);
+  const progressRecord = progressToRecord(progressByCoach);
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 py-10">
@@ -18,7 +34,7 @@ export default async function HomePage() {
         </h1>
       </header>
 
-      <ContinueBanner coaches={coaches} />
+      <ContinueBanner coaches={coaches} progressByCoach={progressRecord} />
 
       {coaches.length === 0 ? (
         <p className="rounded-xl border border-border-subtle bg-surface p-6 text-center text-[14px] text-secondary">
@@ -26,21 +42,7 @@ export default async function HomePage() {
           admin.
         </p>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {coaches.map((coach) => (
-            <li key={coach.id}>
-              <Link
-                href={`/coach/${coach.id}`}
-                className="flex min-h-14 items-center justify-between rounded-xl border border-border-subtle bg-surface px-5 py-4 text-[16px] font-medium transition-colors duration-150 hover:border-accent/40 active:bg-accent-soft"
-              >
-                {coach.name}
-                <span aria-hidden className="text-muted">
-                  →
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <CoachHomeList coaches={coaches} progressByCoach={progressByCoach} />
       )}
 
       <footer className="mt-auto pt-12 text-center">

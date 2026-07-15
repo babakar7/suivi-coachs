@@ -45,10 +45,15 @@ function parseSessionForm(formData: FormData): ParsedSession {
   if (!TYPE_LIST.includes(sessionType)) {
     return { ok: false, error: "Veuillez choisir un type de séance." };
   }
-  if (!Number.isFinite(hours) || hours <= 0 || hours > 12) {
+  if (
+    !Number.isFinite(hours) ||
+    !Number.isInteger(hours) ||
+    hours < 1 ||
+    hours > 12
+  ) {
     return {
       ok: false,
-      error: "Le nombre d'heures doit être entre 0,25 et 12.",
+      error: "Le nombre d'heures doit être un entier entre 1 et 12.",
     };
   }
 

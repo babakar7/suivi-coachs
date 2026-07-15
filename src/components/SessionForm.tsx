@@ -11,15 +11,17 @@ import {
   getOvershoot,
   overshootMessage,
 } from "@/lib/targets";
+import {
+  loadFormPrefs,
+  localTodayISO,
+  localYesterdayISO,
+  saveFormPrefs,
+} from "@/lib/prefs";
 import type { ActionState, Equipment, Progress, SessionType } from "@/lib/types";
 
-const QUICK_HOURS = ["0,5", "1", "1,5", "2"];
+const QUICK_HOURS = ["1", "2", "3", "4"];
 
-function localToday(): string {
-  const now = new Date();
-  const offset = now.getTimezoneOffset() * 60_000;
-  return new Date(now.getTime() - offset).toISOString().slice(0, 10);
-}
+type DateChoice = "today" | "yesterday" | "other";
 
 function segmentClass(selected: boolean): string {
   return `min-h-11 flex-1 rounded-lg px-2 text-[13px] font-medium transition-colors duration-150 ${
@@ -42,15 +44,40 @@ export default function SessionForm({
     { ok: false }
   );
 
+  const [hydrated, setHydrated] = useState(false);
   const [equipment, setEquipment] = useState<Equipment>("reformer");
   const [sessionType, setSessionType] = useState<SessionType>("pratique");
   const [hours, setHours] = useState("1");
+  const [dateChoice, setDateChoice] = useState<DateChoice>("today");
+  const [customDate, setCustomDate] = useState(localTodayISO);
+  const [showEquipment, setShowEquipment] = useState(false);
   const [saved, setSaved] = useState(false);
   const submitCount = useRef(0);
   const lastSubmitSeen = useRef(0);
 
-  const showEquipmentDetail = equipmentMatters(sessionType);
+  useEffect(() => {
+    const prefs = loadFormPrefs();
+    setSessionType(prefs.sessionType);
+    setEquipment(prefs.equipment);
+    setHours(prefs.hours);
+    if (equipmentMatters(prefs.sessionType)) setShowEquipment(true);
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveFormPrefs({ sessionType, equipment, hours });
+  }, [hydrated, sessionType, equipment, hours]);
+
+  const needsEquipment = equipmentMatters(sessionType);
   const hoursNum = Number(String(hours).replace(",", "."));
+
+  const sessionDate =
+    dateChoice === "today"
+      ? localTodayISO()
+      : dateChoice === "yesterday"
+        ? localYesterdayISO()
+        : customDate;
 
   const overshoot = useMemo(
     () => getOvershoot(progress, sessionType, equipment, hoursNum),
@@ -66,32 +93,63 @@ export default function SessionForm({
     }
   }, [state]);
 
+  function selectType(t: SessionType) {
+    setSessionType(t);
+    if (equipmentMatters(t)) setShowEquipment(true);
+  }
+
   return (
     <form
+      id="ajouter-seance"
       action={formAction}
       onSubmit={() => {
         submitCount.current += 1;
       }}
-      className="rounded-xl border border-border-subtle bg-surface p-4"
+      className="rounded-xl border border-border-subtle bg-surface p-4 scroll-mt-4"
     >
       <h2 className="text-[16px] font-semibold tracking-tight">
         Ajouter une séance
       </h2>
 
       <div className="mt-4 flex flex-col gap-4">
-        <label className="block">
-          <span className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
+        <fieldset>
+          <legend className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
             Date
-          </span>
-          <input
-            type="date"
-            name="session_date"
-            required
-            defaultValue={localToday()}
-            suppressHydrationWarning
-            className="min-h-11 w-full rounded-lg border border-border bg-surface px-3 text-[15px] outline-none focus:border-accent"
-          />
-        </label>
+          </legend>
+          <input type="hidden" name="session_date" value={sessionDate} />
+          <div className="flex gap-2">
+            {(
+              [
+                ["today", "Aujourd'hui"],
+                ["yesterday", "Hier"],
+                ["other", "Autre"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => {
+                  setDateChoice(value);
+                  if (value === "other") setCustomDate(localTodayISO());
+                }}
+                aria-pressed={dateChoice === value}
+                className={segmentClass(dateChoice === value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {dateChoice === "other" && (
+            <input
+              type="date"
+              required
+              value={customDate}
+              onChange={(e) => setCustomDate(e.target.value)}
+              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-surface px-3 text-[15px] outline-none focus:border-accent"
+              aria-label="Choisir une date"
+            />
+          )}
+        </fieldset>
 
         <fieldset>
           <legend className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
@@ -103,7 +161,7 @@ export default function SessionForm({
               <button
                 key={t}
                 type="button"
-                onClick={() => setSessionType(t)}
+                onClick={() => selectType(t)}
                 aria-pressed={sessionType === t}
                 className={segmentClass(sessionType === t)}
               >
@@ -111,38 +169,6 @@ export default function SessionForm({
               </button>
             ))}
           </div>
-        </fieldset>
-
-        <fieldset>
-          <legend className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
-            Équipement
-          </legend>
-          <input type="hidden" name="equipment" value={equipment} />
-          <div className="flex gap-2">
-            {EQUIPMENT_LIST.map((eq) => (
-              <button
-                key={eq}
-                type="button"
-                onClick={() => setEquipment(eq)}
-                aria-pressed={equipment === eq}
-                className={segmentClass(equipment === eq)}
-              >
-                {EQUIPMENT_LABELS[eq]}
-              </button>
-            ))}
-          </div>
-          {!showEquipmentDetail && (
-            <p className="mt-2 text-[12px] text-muted">
-              {sessionType === "pratique"
-                ? "Les heures de pratique comptent ensemble (reformer + sol), objectif 20 h."
-                : "Les heures d'observation comptent ensemble, objectif 10 h."}
-            </p>
-          )}
-          {showEquipmentDetail && (
-            <p className="mt-2 text-[12px] text-muted">
-              Objectif : 10 h reformer et 10 h sol.
-            </p>
-          )}
         </fieldset>
 
         <fieldset>
@@ -166,15 +192,58 @@ export default function SessionForm({
             type="number"
             name="hours"
             required
-            min={0.25}
+            min={1}
             max={12}
-            step={0.25}
+            step={1}
             value={hours}
             onChange={(e) => setHours(e.target.value)}
             className="mt-2 min-h-11 w-full rounded-lg border border-border bg-surface px-3 text-[15px] outline-none focus:border-accent"
             aria-label="Nombre d'heures"
           />
         </fieldset>
+
+        <input type="hidden" name="equipment" value={equipment} />
+
+        {(needsEquipment || showEquipment) && (
+          <fieldset>
+            <legend className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
+              Équipement
+              {needsEquipment && (
+                <span className="ml-1 font-normal normal-case tracking-normal text-muted">
+                  (requis pour l&apos;enseignement)
+                </span>
+              )}
+            </legend>
+            <div className="flex gap-2">
+              {EQUIPMENT_LIST.map((eq) => (
+                <button
+                  key={eq}
+                  type="button"
+                  onClick={() => setEquipment(eq)}
+                  aria-pressed={equipment === eq}
+                  className={segmentClass(equipment === eq)}
+                >
+                  {EQUIPMENT_LABELS[eq]}
+                </button>
+              ))}
+            </div>
+            {needsEquipment && (
+              <p className="mt-2 text-[12px] text-muted">
+                Objectif : 10 h reformer et 10 h sol.
+              </p>
+            )}
+          </fieldset>
+        )}
+
+        {!needsEquipment && !showEquipment && (
+          <button
+            type="button"
+            onClick={() => setShowEquipment(true)}
+            className="self-start text-[13px] font-medium text-accent transition-colors hover:text-accent-strong"
+          >
+            Préciser l&apos;équipement (optionnel)
+          </button>
+        )}
 
         {overshoot && (
           <p

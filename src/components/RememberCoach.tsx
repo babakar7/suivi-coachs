@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { LAST_COACH_KEY } from "./ContinueBanner";
+import { LAST_COACH_KEY } from "@/lib/prefs";
 
 export default function RememberCoach({ coachId }: { coachId: string }) {
   useEffect(() => {

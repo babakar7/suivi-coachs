@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState, useTransition } from "react";
 import { deleteSession, updateSession } from "@/app/actions";
 import {
   EQUIPMENT_LIST,
@@ -19,15 +19,32 @@ import type {
   SessionType,
 } from "@/lib/types";
 
+type Filter = "all" | SessionType;
+
 const dateFormat = new Intl.DateTimeFormat("fr-FR", {
   day: "numeric",
   month: "short",
   year: "numeric",
 });
 
+const monthFormat = new Intl.DateTimeFormat("fr-FR", {
+  month: "long",
+  year: "numeric",
+});
+
 function formatDate(iso: string): string {
   const [year, month, day] = iso.split("-").map(Number);
   return dateFormat.format(new Date(year, month - 1, day));
+}
+
+function monthKey(iso: string): string {
+  return iso.slice(0, 7);
+}
+
+function monthLabel(key: string): string {
+  const [year, month] = key.split("-").map(Number);
+  const label = monthFormat.format(new Date(year, month - 1, 1));
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 function segmentClass(selected: boolean): string {
@@ -83,7 +100,6 @@ function SessionEditForm({
 
   useEffect(() => {
     if (state.ok) onSaved();
-    // Close editor once after a successful save (state flips to ok).
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only react to save success
   }, [state.ok]);
 
@@ -151,9 +167,9 @@ function SessionEditForm({
           type="number"
           name="hours"
           required
-          min={0.25}
+          min={1}
           max={12}
-          step={0.25}
+          step={1}
           value={hours}
           onChange={(e) => setHours(e.target.value)}
           className="min-h-10 w-full rounded-lg border border-border bg-surface px-3 text-[14px] outline-none focus:border-accent"
@@ -202,19 +218,17 @@ function SessionEditForm({
 function SessionRow({
   session,
   progress,
-  showBorder,
 }: {
   session: Session;
   progress: Progress;
-  showBorder: boolean;
 }) {
   const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [pending, startTransition] = useTransition();
 
   if (editing) {
     return (
-      <li
-        className={`px-4 py-3 ${showBorder ? "border-t border-border-subtle" : ""}`}
-      >
+      <li className="border-t border-border-subtle px-4 py-3 first:border-t-0">
         <SessionEditForm
           session={session}
           progress={progress}
@@ -225,12 +239,44 @@ function SessionRow({
     );
   }
 
+  if (confirmDelete) {
+    return (
+      <li className="border-t border-border-subtle px-4 py-3 first:border-t-0">
+        <p className="text-[14px] text-secondary">
+          Supprimer cette séance de{" "}
+          <span className="font-medium text-foreground">
+            {formatHours(session.hours)}
+          </span>
+          &nbsp;?
+        </p>
+        <div className="mt-3 flex gap-2">
+          <button
+            type="button"
+            onClick={() => setConfirmDelete(false)}
+            disabled={pending}
+            className="min-h-10 flex-1 rounded-lg border border-border text-[13px] font-medium text-secondary transition-colors hover:bg-black/[0.03]"
+          >
+            Annuler
+          </button>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => {
+              startTransition(async () => {
+                await deleteSession(session.id, session.coach_id);
+              });
+            }}
+            className="min-h-10 flex-1 rounded-lg bg-danger text-[13px] font-medium text-white transition-opacity disabled:opacity-60"
+          >
+            {pending ? "…" : "Confirmer"}
+          </button>
+        </div>
+      </li>
+    );
+  }
+
   return (
-    <li
-      className={`flex items-center gap-2 px-4 py-3 ${
-        showBorder ? "border-t border-border-subtle" : ""
-      }`}
-    >
+    <li className="flex items-center gap-2 border-t border-border-subtle px-4 py-3 first:border-t-0">
       <div className="min-w-0 flex-1">
         <p className="text-[14px] font-medium">
           {TYPE_LABELS_SHORT[session.session_type]}
@@ -249,28 +295,27 @@ function SessionRow({
       <button
         type="button"
         onClick={() => setEditing(true)}
-        aria-label="Modifier cette séance"
-        className="flex size-9 items-center justify-center rounded-lg text-[12px] font-medium text-muted transition-colors duration-150 hover:bg-accent-soft hover:text-accent"
+        className="min-h-9 shrink-0 rounded-lg px-2.5 text-[12px] font-medium text-accent transition-colors hover:bg-accent-soft"
       >
-        ✎
+        Modifier
       </button>
-      <form
-        action={deleteSession.bind(null, session.id, session.coach_id)}
-        onSubmit={(e) => {
-          if (!confirm("Supprimer cette séance ?")) e.preventDefault();
-        }}
+      <button
+        type="button"
+        onClick={() => setConfirmDelete(true)}
+        className="min-h-9 shrink-0 rounded-lg px-2.5 text-[12px] font-medium text-muted transition-colors hover:bg-danger/[0.08] hover:text-danger"
       >
-        <button
-          type="submit"
-          aria-label="Supprimer cette séance"
-          className="flex size-9 items-center justify-center rounded-lg text-muted transition-colors duration-150 hover:bg-danger/[0.08] hover:text-danger"
-        >
-          ✕
-        </button>
-      </form>
+        Supprimer
+      </button>
     </li>
   );
 }
+
+const FILTERS: { id: Filter; label: string }[] = [
+  { id: "all", label: "Tout" },
+  { id: "pratique", label: "Pratique" },
+  { id: "enseignement", label: "Ens." },
+  { id: "observation", label: "Obs." },
+];
 
 export default function SessionList({
   sessions,
@@ -279,25 +324,80 @@ export default function SessionList({
   sessions: Session[];
   progress: Progress;
 }) {
+  const [filter, setFilter] = useState<Filter>("all");
+
+  const filtered = useMemo(() => {
+    if (filter === "all") return sessions;
+    return sessions.filter((s) => s.session_type === filter);
+  }, [sessions, filter]);
+
+  const groups = useMemo(() => {
+    const map = new Map<string, Session[]>();
+    for (const s of filtered) {
+      const key = monthKey(s.session_date);
+      const list = map.get(key) ?? [];
+      list.push(s);
+      map.set(key, list);
+    }
+    return Array.from(map.entries());
+  }, [filtered]);
+
   if (sessions.length === 0) {
     return (
       <p className="rounded-xl border border-border-subtle bg-surface p-6 text-center text-[14px] text-secondary">
-        Aucune séance pour le moment. Ajoutez votre première séance
+        Aucune séance pour le moment. Ajoute ta première séance
         ci-dessus&nbsp;!
       </p>
     );
   }
 
   return (
-    <ul className="overflow-hidden rounded-xl border border-border-subtle bg-surface">
-      {sessions.map((session, index) => (
-        <SessionRow
-          key={session.id}
-          session={session}
-          progress={progress}
-          showBorder={index > 0}
-        />
-      ))}
-    </ul>
+    <div className="flex flex-col gap-3">
+      <div
+        className="flex gap-1.5 overflow-x-auto pb-0.5"
+        role="tablist"
+        aria-label="Filtrer l'historique"
+      >
+        {FILTERS.map((f) => (
+          <button
+            key={f.id}
+            type="button"
+            role="tab"
+            aria-selected={filter === f.id}
+            onClick={() => setFilter(f.id)}
+            className={`min-h-9 shrink-0 rounded-full px-3 text-[13px] font-medium transition-colors ${
+              filter === f.id
+                ? "bg-accent text-white"
+                : "bg-black/[0.04] text-secondary hover:bg-black/[0.07]"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="rounded-xl border border-border-subtle bg-surface p-6 text-center text-[14px] text-secondary">
+          Aucune séance dans ce filtre.
+        </p>
+      ) : (
+        groups.map(([key, groupSessions]) => (
+          <div key={key}>
+            <h3 className="mb-2 px-1 text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
+              {monthLabel(key)}
+            </h3>
+            <ul className="overflow-hidden rounded-xl border border-border-subtle bg-surface">
+              {groupSessions.map((session) => (
+                <SessionRow
+                  key={session.id}
+                  session={session}
+                  progress={progress}
+                />
+              ))}
+            </ul>
+          </div>
+        ))
+      )}
+    </div>
   );
 }
