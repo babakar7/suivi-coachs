@@ -1,5 +1,6 @@
 import type { Options } from "canvas-confetti";
 
+// Doit rester synchronisé avec la palette @theme de src/app/globals.css
 const REVIVE_COLORS = [
   "#7c547d",
   "#a98baa",

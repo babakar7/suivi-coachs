@@ -15,12 +15,12 @@ import {
 } from "@/lib/targets";
 import type { Progress } from "@/lib/types";
 import ProgressBar from "@/components/ProgressBar";
+import ProgressTrack from "@/components/ProgressTrack";
 import CountUp from "@/components/CountUp";
 
 export default function CompactProgress({ progress }: { progress: Progress }) {
   const [open, setOpen] = useState(false);
   const total = totalHours(progress);
-  const totalPercent = Math.min(100, (total / GRAND_TOTAL) * 100);
   const completed = total >= GRAND_TOTAL;
   const lines = remainingLines(progress);
   const totalRemaining = Math.max(0, GRAND_TOTAL - total);
@@ -34,10 +34,10 @@ export default function CompactProgress({ progress }: { progress: Progress }) {
       }`}
     >
       <div className="flex items-baseline justify-between gap-2">
-        <h2 className="text-[13px] font-medium uppercase tracking-[0.06em] text-muted">
+        <h2 className="text-sm font-medium uppercase tracking-[0.06em] text-muted">
           Progression
         </h2>
-        <span className="font-mono text-[15px] font-semibold tabular-nums">
+        <span className="font-mono text-base font-semibold tabular-nums">
           <CountUp value={total} />
           <span className="font-normal text-muted">
             {" "}
@@ -46,26 +46,25 @@ export default function CompactProgress({ progress }: { progress: Progress }) {
         </span>
       </div>
 
-      <div className="mt-2 h-3 overflow-hidden rounded-full bg-black/[0.06]">
-        <div
-          className={`h-full rounded-full transition-[width] duration-700 ease-out ${
-            completed ? "bg-success" : "bg-accent"
-          }`}
-          style={{ width: `${totalPercent}%` }}
-        />
-      </div>
+      <ProgressTrack
+        value={total}
+        max={GRAND_TOTAL}
+        size="lg"
+        label="Progression totale"
+        className="mt-2"
+      />
 
       {completed ? (
-        <p className="mt-3 text-[14px] font-medium text-success">
+        <p className="mt-3 text-md font-medium text-success">
           🎉 Objectif atteint&nbsp;!
         </p>
       ) : (
         <>
           <div className="mt-3 flex items-baseline justify-between gap-2">
-            <p className="text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
+            <p className="text-xs font-medium uppercase tracking-[0.06em] text-muted">
               Il me reste
             </p>
-            <span className="font-mono text-[13px] font-semibold tabular-nums">
+            <span className="font-mono text-sm font-semibold tabular-nums">
               <CountUp value={totalRemaining} />
             </span>
           </div>
@@ -73,10 +72,10 @@ export default function CompactProgress({ progress }: { progress: Progress }) {
             {lines.map((line) => (
               <li
                 key={line.key}
-                className={`rounded-full px-2.5 py-1 text-[12px] tabular-nums ${
+                className={`rounded-full px-2.5 py-1 text-xs tabular-nums ${
                   line.complete
                     ? "animate-chip-pop bg-success-soft font-medium text-success"
-                    : "bg-black/[0.04] text-secondary"
+                    : "bg-chip text-secondary"
                 }`}
               >
                 {line.complete ? (
@@ -98,7 +97,7 @@ export default function CompactProgress({ progress }: { progress: Progress }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="mt-3 text-[13px] font-medium text-accent transition-colors hover:text-accent-strong"
+        className="mt-3 text-sm font-medium text-accent transition-colors hover:text-accent-strong"
         aria-expanded={open}
       >
         {open ? "Masquer le détail" : "Voir le détail"}
@@ -107,10 +106,10 @@ export default function CompactProgress({ progress }: { progress: Progress }) {
       {open && (
         <div className="mt-4 flex flex-col gap-4 border-t border-border-subtle pt-4">
           <div>
-            <h3 className="text-[14px] font-semibold tracking-tight">
+            <h3 className="text-md font-semibold tracking-tight">
               {TYPE_LABELS.pratique}
             </h3>
-            <p className="mt-0.5 text-[12px] text-muted">
+            <p className="mt-0.5 text-xs text-muted">
               Reformer et sol · objectif {formatHours(PRATIQUE_TARGET)}
             </p>
             <div className="mt-2">
@@ -123,10 +122,10 @@ export default function CompactProgress({ progress }: { progress: Progress }) {
           </div>
 
           <div>
-            <h3 className="text-[14px] font-semibold tracking-tight">
+            <h3 className="text-md font-semibold tracking-tight">
               {TYPE_LABELS.enseignement}
             </h3>
-            <p className="mt-0.5 text-[12px] text-muted">
+            <p className="mt-0.5 text-xs text-muted">
               10 h reformer et 10 h sol
             </p>
             <div className="mt-2 flex flex-col gap-3">
@@ -142,10 +141,10 @@ export default function CompactProgress({ progress }: { progress: Progress }) {
           </div>
 
           <div>
-            <h3 className="text-[14px] font-semibold tracking-tight">
+            <h3 className="text-md font-semibold tracking-tight">
               {TYPE_LABELS.observation}
             </h3>
-            <p className="mt-0.5 text-[12px] text-muted">
+            <p className="mt-0.5 text-xs text-muted">
               Objectif {formatHours(OBSERVATION_TARGET)}
             </p>
             <div className="mt-2">

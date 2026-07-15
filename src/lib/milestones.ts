@@ -119,11 +119,11 @@ const PERCENT_COPY: Record<25 | 50 | 75, { title: string; body: string }> = {
   },
   50: {
     title: "À mi-parcours !",
-    body: "25 h sur 50 — la moitié est derrière vous.",
+    body: "25 h sur 50 — la moitié est derrière toi.",
   },
   75: {
     title: "75 % — dernière ligne droite !",
-    body: "Plus que quelques heures, vous y êtes presque.",
+    body: "Plus que quelques heures, tu y es presque.",
   },
 };
 
@@ -136,7 +136,7 @@ export function milestoneCopy(m: Milestone): {
     return {
       emoji: "🎉",
       title: "50 heures — objectif atteint !",
-      body: "Toutes les heures sont validées. Immense bravo, la certification est à vous !",
+      body: "Toutes les heures sont validées. Immense bravo, la certification est à toi !",
     };
   }
   if (m.kind === "bucket") {
@@ -151,7 +151,7 @@ const PRAISE_POOL = [
   "Et hop, {h} de plus au compteur !",
   "Belle séance — ça avance !",
   "Encore un pas vers les 50 h !",
-  "Superbe régularité, continuez !",
+  "Superbe régularité, continue !",
   "C'est noté ! Plus que {reste}.",
 ];
 
@@ -162,7 +162,7 @@ export function encouragement(
   seed: number
 ): string {
   const reste = Math.max(0, GRAND_TOTAL - totalHours(after));
-  if (reste <= 0) return "Objectif atteint — profitez-en !";
+  if (reste <= 0) return "Objectif atteint — profites-en !";
   const template = PRAISE_POOL[Math.abs(seed) % PRAISE_POOL.length];
   return template
     .replace("{reste}", formatHours(reste))

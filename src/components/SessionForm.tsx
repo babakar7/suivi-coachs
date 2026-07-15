@@ -24,19 +24,12 @@ import {
   type Milestone,
 } from "@/lib/milestones";
 import CelebrationOverlay from "@/components/CelebrationOverlay";
+import { segmentClass } from "@/lib/ui";
 import type { ActionState, Equipment, Progress, SessionType } from "@/lib/types";
 
 const QUICK_HOURS = ["1", "2", "3", "4"];
 
 type DateChoice = "today" | "yesterday" | "other";
-
-function segmentClass(selected: boolean): string {
-  return `min-h-11 flex-1 rounded-lg px-2 text-[13px] font-medium transition-[background-color,color,transform] duration-150 ease-out-back active:scale-[0.95] ${
-    selected
-      ? "bg-accent text-white"
-      : "bg-black/[0.04] text-secondary hover:bg-black/[0.07]"
-  }`;
-}
 
 export default function SessionForm({
   coachId,
@@ -142,13 +135,13 @@ export default function SessionForm({
       }}
       className="rounded-xl border border-border-subtle bg-surface p-4 scroll-mt-4"
     >
-      <h2 className="text-[16px] font-semibold tracking-tight">
+      <h2 className="text-lg font-semibold tracking-tight">
         Ajouter une séance
       </h2>
 
       <div className="mt-4 flex flex-col gap-4">
         <fieldset>
-          <legend className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
+          <legend className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-muted">
             Date
           </legend>
           <input type="hidden" name="session_date" value={sessionDate} />
@@ -180,14 +173,14 @@ export default function SessionForm({
               required
               value={customDate}
               onChange={(e) => setCustomDate(e.target.value)}
-              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-surface px-3 text-[15px] outline-none focus:border-accent"
+              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-surface px-3 text-base focus:border-accent"
               aria-label="Choisir une date"
             />
           )}
         </fieldset>
 
         <fieldset>
-          <legend className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
+          <legend className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-muted">
             Type de séance
           </legend>
           <input type="hidden" name="session_type" value={sessionType} />
@@ -207,7 +200,7 @@ export default function SessionForm({
         </fieldset>
 
         <fieldset>
-          <legend className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
+          <legend className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-muted">
             Heures
           </legend>
           <div className="flex gap-2">
@@ -232,7 +225,7 @@ export default function SessionForm({
             step={1}
             value={hours}
             onChange={(e) => setHours(e.target.value)}
-            className="mt-2 min-h-11 w-full rounded-lg border border-border bg-surface px-3 text-[15px] outline-none focus:border-accent"
+            className="mt-2 min-h-11 w-full rounded-lg border border-border bg-surface px-3 text-base focus:border-accent"
             aria-label="Nombre d'heures"
           />
         </fieldset>
@@ -240,7 +233,7 @@ export default function SessionForm({
         <input type="hidden" name="equipment" value={equipment} />
 
         <fieldset>
-          <legend className="mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-muted">
+          <legend className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-muted">
             Équipement
           </legend>
           <div className="flex gap-2">
@@ -257,7 +250,7 @@ export default function SessionForm({
             ))}
           </div>
           {needsEquipment && (
-            <p className="mt-2 text-[12px] text-muted">
+            <p className="mt-2 text-xs text-muted">
               Objectif : 10 h reformer et 10 h sol.
             </p>
           )}
@@ -266,14 +259,14 @@ export default function SessionForm({
         {overshoot && (
           <p
             role="status"
-            className="rounded-lg border border-accent/25 bg-accent-soft px-3 py-2 text-[13px] text-accent-strong"
+            className="rounded-lg border border-accent/25 bg-accent-soft px-3 py-2 text-sm text-accent-strong"
           >
             {overshootMessage(overshoot)}
           </p>
         )}
 
         {state.error && (
-          <p className="rounded-lg bg-danger/[0.08] px-3 py-2 text-[13px] text-danger">
+          <p className="rounded-lg bg-danger/[0.08] px-3 py-2 text-sm text-danger">
             {state.error}
           </p>
         )}
@@ -282,7 +275,7 @@ export default function SessionForm({
           key={saved ? "saved" : "idle"}
           type="submit"
           disabled={pending}
-          className={`min-h-12 rounded-lg text-[15px] font-medium text-white transition-[background-color,transform] duration-150 ease-out-back active:scale-[0.98] disabled:opacity-60 ${
+          className={`min-h-12 rounded-lg text-base font-medium text-white transition-[background-color,transform] duration-150 ease-out-back active:scale-[0.98] disabled:opacity-60 ${
             saved ? "animate-chip-pop bg-success" : "bg-accent hover:bg-accent-strong"
           }`}
         >
@@ -319,7 +312,7 @@ export default function SessionForm({
         {praise && !milestone && (
           <p
             role="status"
-            className="animate-pop-in text-center text-[13px] font-medium text-success"
+            className="animate-pop-in text-center text-sm font-medium text-success"
           >
             {praise}
           </p>

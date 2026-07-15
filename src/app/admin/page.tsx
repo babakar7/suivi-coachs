@@ -16,6 +16,7 @@ import {
 } from "@/lib/targets";
 import { adminLogout, setCoachActive } from "@/app/actions";
 import AddCoachForm from "@/components/AddCoachForm";
+import ProgressTrack from "@/components/ProgressTrack";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +38,7 @@ export default async function AdminPage() {
         <div>
           <Link
             href="/"
-            className="text-[13px] text-muted transition-colors hover:text-secondary"
+            className="text-sm text-muted transition-colors hover:text-secondary"
           >
             ← Accueil
           </Link>
@@ -48,7 +49,7 @@ export default async function AdminPage() {
         <form action={adminLogout}>
           <button
             type="submit"
-            className="text-[13px] text-muted transition-colors hover:text-secondary"
+            className="text-sm text-muted transition-colors hover:text-secondary"
           >
             Se déconnecter
           </button>
@@ -56,7 +57,7 @@ export default async function AdminPage() {
       </header>
 
       {coaches.length === 0 ? (
-        <p className="rounded-xl border border-border-subtle bg-surface p-6 text-center text-[14px] text-secondary">
+        <p className="rounded-xl border border-border-subtle bg-surface p-6 text-center text-md text-secondary">
           Aucune coach pour le moment. Ajoutez la première ci-dessous.
         </p>
       ) : (
@@ -75,7 +76,7 @@ export default async function AdminPage() {
                 }`}
               >
                 <div className="flex items-baseline justify-between gap-2">
-                  <h2 className="text-[16px] font-semibold tracking-tight">
+                  <h2 className="text-lg font-semibold tracking-tight">
                     <Link
                       href={`/coach/${coach.id}`}
                       className="transition-colors hover:text-accent"
@@ -83,13 +84,13 @@ export default async function AdminPage() {
                       {coach.name}
                     </Link>
                     {!coach.active && (
-                      <span className="ml-2 text-[12px] font-normal text-muted">
+                      <span className="ml-2 text-xs font-normal text-muted">
                         (archivée)
                       </span>
                     )}
                   </h2>
                   <span
-                    className={`font-mono text-[14px] font-medium tabular-nums ${
+                    className={`font-mono text-md font-medium tabular-nums ${
                       completed ? "text-success" : ""
                     }`}
                   >
@@ -102,22 +103,20 @@ export default async function AdminPage() {
                   </span>
                 </div>
 
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-black/[0.06]">
-                  <div
-                    className={`h-full rounded-full ${
-                      completed ? "bg-success" : "bg-accent"
-                    }`}
-                    style={{ width: `${percent}%` }}
-                  />
-                </div>
+                <ProgressTrack
+                  value={total}
+                  max={GRAND_TOTAL}
+                  label={`Progression de ${coach.name}`}
+                  className="mt-2"
+                />
 
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  <div className="rounded-lg bg-black/[0.03] px-2.5 py-2">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+                  <div className="rounded-lg bg-chip px-2.5 py-2">
+                    <p className="text-2xs font-medium uppercase tracking-[0.06em] text-muted">
                       {TYPE_LABELS_SHORT.pratique}
                     </p>
                     <p
-                      className={`mt-1 font-mono text-[12px] tabular-nums ${
+                      className={`mt-1 font-mono text-xs tabular-nums ${
                         progress.pratique >= PRATIQUE_TARGET
                           ? "text-success"
                           : "text-secondary"
@@ -126,11 +125,11 @@ export default async function AdminPage() {
                       {formatHours(progress.pratique)} /{" "}
                       {formatHours(PRATIQUE_TARGET)}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-muted">Ref. + sol</p>
+                    <p className="mt-0.5 text-2xs text-muted">Ref. + sol</p>
                   </div>
 
-                  <div className="rounded-lg bg-black/[0.03] px-2.5 py-2">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+                  <div className="rounded-lg bg-chip px-2.5 py-2">
+                    <p className="text-2xs font-medium uppercase tracking-[0.06em] text-muted">
                       {TYPE_LABELS_SHORT.enseignement}
                     </p>
                     {EQUIPMENT_LIST.map((eq) => {
@@ -139,7 +138,7 @@ export default async function AdminPage() {
                       return (
                         <p
                           key={eq}
-                          className={`mt-1 font-mono text-[12px] tabular-nums ${
+                          className={`mt-1 font-mono text-xs tabular-nums ${
                             done ? "text-success" : "text-secondary"
                           }`}
                         >
@@ -151,12 +150,12 @@ export default async function AdminPage() {
                     })}
                   </div>
 
-                  <div className="rounded-lg bg-black/[0.03] px-2.5 py-2">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+                  <div className="rounded-lg bg-chip px-2.5 py-2">
+                    <p className="text-2xs font-medium uppercase tracking-[0.06em] text-muted">
                       {TYPE_LABELS_SHORT.observation}
                     </p>
                     <p
-                      className={`mt-1 font-mono text-[12px] tabular-nums ${
+                      className={`mt-1 font-mono text-xs tabular-nums ${
                         progress.observation >= OBSERVATION_TARGET
                           ? "text-success"
                           : "text-secondary"
@@ -174,7 +173,7 @@ export default async function AdminPage() {
                 >
                   <button
                     type="submit"
-                    className="text-[12px] text-muted transition-colors hover:text-secondary"
+                    className="text-xs text-muted transition-colors hover:text-secondary"
                   >
                     {coach.active ? "Archiver" : "Réactiver"}
                   </button>

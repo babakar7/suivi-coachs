@@ -127,14 +127,21 @@ export async function updateSession(
 export async function deleteSession(
   sessionId: string,
   coachId: string
-): Promise<void> {
-  if (!isUuid(sessionId) || !isUuid(coachId)) return;
-  await query("delete from sessions where id = $1 and coach_id = $2", [
-    sessionId,
-    coachId,
-  ]);
+): Promise<ActionState> {
+  if (!isUuid(sessionId) || !isUuid(coachId)) {
+    return { ok: false, error: "Séance introuvable." };
+  }
+  try {
+    await query("delete from sessions where id = $1 and coach_id = $2", [
+      sessionId,
+      coachId,
+    ]);
+  } catch {
+    return { ok: false, error: "La suppression a échoué. Réessaie." };
+  }
   revalidatePath(`/coach/${coachId}`);
   revalidatePath("/admin");
+  return { ok: true };
 }
 
 export async function addCoach(

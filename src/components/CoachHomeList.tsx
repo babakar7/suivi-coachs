@@ -6,6 +6,7 @@ import {
   totalHours,
 } from "@/lib/targets";
 import type { Coach, Progress } from "@/lib/types";
+import ProgressTrack from "@/components/ProgressTrack";
 
 export default function CoachHomeList({
   coaches,
@@ -19,7 +20,6 @@ export default function CoachHomeList({
       {coaches.map((coach) => {
         const progress = progressByCoach.get(coach.id) ?? emptyProgress();
         const total = totalHours(progress);
-        const percent = Math.min(100, (total / GRAND_TOTAL) * 100);
         const completed = total >= GRAND_TOTAL;
 
         return (
@@ -29,9 +29,9 @@ export default function CoachHomeList({
               className="flex flex-col gap-2 rounded-xl border border-border-subtle bg-surface px-5 py-4 transition-colors duration-150 hover:border-accent/40 active:bg-accent-soft"
             >
               <div className="flex min-h-6 items-center justify-between gap-3">
-                <span className="text-[16px] font-medium">{coach.name}</span>
+                <span className="text-lg font-medium">{coach.name}</span>
                 <span
-                  className={`shrink-0 font-mono text-[13px] tabular-nums ${
+                  className={`shrink-0 font-mono text-sm tabular-nums ${
                     completed ? "font-medium text-success" : "text-secondary"
                   }`}
                 >
@@ -42,14 +42,12 @@ export default function CoachHomeList({
                   </span>
                 </span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
-                <div
-                  className={`h-full rounded-full transition-[width] duration-700 ease-out ${
-                    completed ? "bg-success" : "bg-accent"
-                  }`}
-                  style={{ width: `${percent}%` }}
-                />
-              </div>
+              <ProgressTrack
+                value={total}
+                max={GRAND_TOTAL}
+                size="sm"
+                label={`Progression de ${coach.name}`}
+              />
             </Link>
           </li>
         );

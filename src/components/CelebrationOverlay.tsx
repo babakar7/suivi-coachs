@@ -58,14 +58,14 @@ export default function CelebrationOverlay({
         >
           {title}
         </h2>
-        <p id="celebration-body" className="mt-2 text-[14px] text-secondary">
+        <p id="celebration-body" className="mt-2 text-md text-secondary">
           {body}
         </p>
         <button
           ref={buttonRef}
           type="button"
           onClick={onClose}
-          className="mt-5 min-h-11 w-full rounded-lg bg-accent text-[15px] font-medium text-white transition-colors duration-150 hover:bg-accent-strong active:scale-[0.98]"
+          className="mt-5 min-h-11 w-full rounded-lg bg-accent text-base font-medium text-white transition-colors duration-150 hover:bg-accent-strong active:scale-[0.98]"
         >
           {isFinale ? "Merci !" : "Continuer"}
         </button>

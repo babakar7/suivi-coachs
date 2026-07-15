@@ -28,13 +28,13 @@ export default async function CoachPage({
       <header>
         <Link
           href="/"
-          className="text-[13px] text-muted transition-colors hover:text-secondary"
+          className="text-sm text-muted transition-colors hover:text-secondary"
         >
           ← Changer de coach
         </Link>
         <div className="mt-3 flex items-baseline justify-between gap-3">
           <h1 className="text-2xl font-semibold tracking-tight">{coach.name}</h1>
-          <span className="shrink-0 font-mono text-[14px] font-medium tabular-nums text-secondary">
+          <span className="shrink-0 font-mono text-md font-medium tabular-nums text-secondary">
             <CountUp value={total} />
             <span className="font-normal text-muted">
               {" "}
@@ -54,7 +54,7 @@ export default async function CoachPage({
 
       {/* 3. History */}
       <section>
-        <h2 className="mb-3 text-[16px] font-semibold tracking-tight">
+        <h2 className="mb-3 text-lg font-semibold tracking-tight">
           Historique
         </h2>
         <SessionList sessions={sessions} progress={progress} />

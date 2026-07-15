@@ -230,5 +230,5 @@ export function getOvershoot(
 }
 
 export function overshootMessage(info: OvershootInfo): string {
-  return `Cette séance porterait « ${info.label} » à ${formatHours(info.projected)} (objectif ${formatHours(info.target)}, dépassement de ${formatHours(info.overshoot)}). Vous pouvez tout de même enregistrer.`;
+  return `Cette séance porterait « ${info.label} » à ${formatHours(info.projected)} (objectif ${formatHours(info.target)}, dépassement de ${formatHours(info.overshoot)}). Tu peux tout de même enregistrer.`;
 }

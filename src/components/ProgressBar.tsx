@@ -1,4 +1,5 @@
 import { formatHours } from "@/lib/targets";
+import ProgressTrack from "@/components/ProgressTrack";
 
 export default function ProgressBar({
   label,
@@ -11,14 +12,13 @@ export default function ProgressBar({
 }) {
   const done = value >= target;
   const over = value > target;
-  const percent = Math.min(100, (value / target) * 100);
 
   return (
     <div>
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-[13px] font-medium text-secondary">{label}</span>
+        <span className="text-sm font-medium text-secondary">{label}</span>
         <span
-          className={`font-mono text-[13px] tabular-nums ${
+          className={`font-mono text-sm tabular-nums ${
             over
               ? "font-medium text-accent"
               : done
@@ -36,14 +36,13 @@ export default function ProgressBar({
           )}
         </span>
       </div>
-      <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-black/[0.06]">
-        <div
-          className={`h-full rounded-full transition-[width] duration-700 ease-out ${
-            over ? "bg-accent" : done ? "bg-success" : "bg-accent"
-          }`}
-          style={{ width: `${percent}%` }}
-        />
-      </div>
+      <ProgressTrack
+        value={value}
+        max={target}
+        label={label}
+        tone={over ? "accent" : "auto"}
+        className="mt-1.5"
+      />
     </div>
   );
 }
