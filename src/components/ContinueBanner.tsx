@@ -41,7 +41,7 @@ export default function ContinueBanner({
       <div className="mt-2 flex items-center gap-2">
         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/25">
           <div
-            className="h-full rounded-full bg-white"
+            className="h-full rounded-full bg-white transition-[width] duration-700 ease-out"
             style={{ width: `${percent}%` }}
           />
         </div>

@@ -15,6 +15,7 @@ import {
 } from "@/lib/targets";
 import type { Progress } from "@/lib/types";
 import ProgressBar from "@/components/ProgressBar";
+import CountUp from "@/components/CountUp";
 
 export default function CompactProgress({ progress }: { progress: Progress }) {
   const [open, setOpen] = useState(false);
@@ -37,7 +38,7 @@ export default function CompactProgress({ progress }: { progress: Progress }) {
           Progression
         </h2>
         <span className="font-mono text-[15px] font-semibold tabular-nums">
-          {formatHours(total)}
+          <CountUp value={total} />
           <span className="font-normal text-muted">
             {" "}
             / {formatHours(GRAND_TOTAL)}
@@ -47,7 +48,7 @@ export default function CompactProgress({ progress }: { progress: Progress }) {
 
       <div className="mt-2 h-3 overflow-hidden rounded-full bg-black/[0.06]">
         <div
-          className={`h-full rounded-full ${
+          className={`h-full rounded-full transition-[width] duration-700 ease-out ${
             completed ? "bg-success" : "bg-accent"
           }`}
           style={{ width: `${totalPercent}%` }}
@@ -65,7 +66,7 @@ export default function CompactProgress({ progress }: { progress: Progress }) {
               Il me reste
             </p>
             <span className="font-mono text-[13px] font-semibold tabular-nums">
-              {formatHours(totalRemaining)}
+              <CountUp value={totalRemaining} />
             </span>
           </div>
           <ul className="mt-2 flex flex-wrap gap-1.5">
@@ -74,7 +75,7 @@ export default function CompactProgress({ progress }: { progress: Progress }) {
                 key={line.key}
                 className={`rounded-full px-2.5 py-1 text-[12px] tabular-nums ${
                   line.complete
-                    ? "bg-success-soft font-medium text-success"
+                    ? "animate-chip-pop bg-success-soft font-medium text-success"
                     : "bg-black/[0.04] text-secondary"
                 }`}
               >

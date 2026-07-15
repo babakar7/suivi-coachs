@@ -48,7 +48,7 @@ function monthLabel(key: string): string {
 }
 
 function segmentClass(selected: boolean): string {
-  return `min-h-10 flex-1 rounded-lg px-2 text-[13px] font-medium transition-colors duration-150 ${
+  return `min-h-10 flex-1 rounded-lg px-2 text-[13px] font-medium transition-[background-color,color,transform] duration-150 ease-out-back active:scale-[0.95] ${
     selected
       ? "bg-accent text-white"
       : "bg-black/[0.04] text-secondary hover:bg-black/[0.07]"
@@ -365,7 +365,7 @@ export default function SessionList({
             role="tab"
             aria-selected={filter === f.id}
             onClick={() => setFilter(f.id)}
-            className={`min-h-9 shrink-0 rounded-full px-3 text-[13px] font-medium transition-colors ${
+            className={`min-h-9 shrink-0 rounded-full px-3 text-[13px] font-medium transition-[background-color,color,transform] duration-150 ease-out-back active:scale-[0.95] ${
               filter === f.id
                 ? "bg-accent text-white"
                 : "bg-black/[0.04] text-secondary hover:bg-black/[0.07]"

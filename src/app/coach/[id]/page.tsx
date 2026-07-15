@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { computeProgress, getCoach, getSessions } from "@/lib/queries";
 import { GRAND_TOTAL, formatHours, totalHours } from "@/lib/targets";
 import CompactProgress from "@/components/CompactProgress";
+import CountUp from "@/components/CountUp";
 import SessionForm from "@/components/SessionForm";
 import SessionList from "@/components/SessionList";
 import RememberCoach from "@/components/RememberCoach";
@@ -34,7 +35,7 @@ export default async function CoachPage({
         <div className="mt-3 flex items-baseline justify-between gap-3">
           <h1 className="text-2xl font-semibold tracking-tight">{coach.name}</h1>
           <span className="shrink-0 font-mono text-[14px] font-medium tabular-nums text-secondary">
-            {formatHours(total)}
+            <CountUp value={total} />
             <span className="font-normal text-muted">
               {" "}
               / {formatHours(GRAND_TOTAL)}

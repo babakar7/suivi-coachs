@@ -17,6 +17,13 @@ import {
   localYesterdayISO,
   saveFormPrefs,
 } from "@/lib/prefs";
+import {
+  applySession,
+  detectMilestone,
+  encouragement,
+  type Milestone,
+} from "@/lib/milestones";
+import CelebrationOverlay from "@/components/CelebrationOverlay";
 import type { ActionState, Equipment, Progress, SessionType } from "@/lib/types";
 
 const QUICK_HOURS = ["1", "2", "3", "4"];
@@ -24,7 +31,7 @@ const QUICK_HOURS = ["1", "2", "3", "4"];
 type DateChoice = "today" | "yesterday" | "other";
 
 function segmentClass(selected: boolean): string {
-  return `min-h-11 flex-1 rounded-lg px-2 text-[13px] font-medium transition-colors duration-150 ${
+  return `min-h-11 flex-1 rounded-lg px-2 text-[13px] font-medium transition-[background-color,color,transform] duration-150 ease-out-back active:scale-[0.95] ${
     selected
       ? "bg-accent text-white"
       : "bg-black/[0.04] text-secondary hover:bg-black/[0.07]"
@@ -52,8 +59,16 @@ export default function SessionForm({
   const [customDate, setCustomDate] = useState(localTodayISO);
   const [showEquipment, setShowEquipment] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [milestone, setMilestone] = useState<Milestone | null>(null);
+  const [praise, setPraise] = useState<string | null>(null);
   const submitCount = useRef(0);
   const lastSubmitSeen = useRef(0);
+  const pendingSubmit = useRef<{
+    before: Progress;
+    type: SessionType;
+    equipment: Equipment;
+    hours: number;
+  } | null>(null);
 
   useEffect(() => {
     const prefs = loadFormPrefs();
@@ -88,7 +103,24 @@ export default function SessionForm({
     if (state.ok && submitCount.current > lastSubmitSeen.current) {
       lastSubmitSeen.current = submitCount.current;
       setSaved(true);
-      const timer = setTimeout(() => setSaved(false), 2500);
+
+      const snap = pendingSubmit.current;
+      pendingSubmit.current = null;
+      if (snap) {
+        const after = applySession(
+          snap.before,
+          snap.type,
+          snap.equipment,
+          snap.hours
+        );
+        setMilestone(detectMilestone(snap.before, after));
+        setPraise(encouragement(after, snap.hours, submitCount.current));
+      }
+
+      const timer = setTimeout(() => {
+        setSaved(false);
+        setPraise(null);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [state]);
@@ -104,6 +136,12 @@ export default function SessionForm({
       action={formAction}
       onSubmit={() => {
         submitCount.current += 1;
+        pendingSubmit.current = {
+          before: progress,
+          type: sessionType,
+          equipment,
+          hours: hoursNum,
+        };
       }}
       className="rounded-xl border border-border-subtle bg-surface p-4 scroll-mt-4"
     >
@@ -261,21 +299,59 @@ export default function SessionForm({
         )}
 
         <button
+          key={saved ? "saved" : "idle"}
           type="submit"
           disabled={pending}
-          className={`min-h-12 rounded-lg text-[15px] font-medium text-white transition-colors duration-150 disabled:opacity-60 ${
-            saved ? "bg-success" : "bg-accent hover:bg-accent-strong"
+          className={`min-h-12 rounded-lg text-[15px] font-medium text-white transition-[background-color,transform] duration-150 ease-out-back active:scale-[0.98] disabled:opacity-60 ${
+            saved ? "animate-chip-pop bg-success" : "bg-accent hover:bg-accent-strong"
           }`}
         >
-          {pending
-            ? "Enregistrement…"
-            : saved
-              ? "Séance enregistrée ✓"
-              : overshoot
-                ? "Enregistrer quand même"
-                : "Enregistrer la séance"}
+          {pending ? (
+            "Enregistrement…"
+          ) : saved ? (
+            <span className="inline-flex items-center justify-center gap-1.5">
+              Séance enregistrée
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path
+                  d="M5 13l4 4L19 7"
+                  pathLength={24}
+                  className="animate-check-draw"
+                  style={{ strokeDasharray: 24 }}
+                />
+              </svg>
+            </span>
+          ) : overshoot ? (
+            "Enregistrer quand même"
+          ) : (
+            "Enregistrer la séance"
+          )}
         </button>
+
+        {praise && !milestone && (
+          <p
+            role="status"
+            className="animate-pop-in text-center text-[13px] font-medium text-success"
+          >
+            {praise}
+          </p>
+        )}
       </div>
+
+      {milestone && (
+        <CelebrationOverlay
+          milestone={milestone}
+          onClose={() => setMilestone(null)}
+        />
+      )}
     </form>
   );
 }
