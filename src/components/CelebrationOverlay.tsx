@@ -46,7 +46,7 @@ export default function CelebrationOverlay({
         aria-modal="true"
         aria-labelledby="celebration-title"
         aria-describedby="celebration-body"
-        className="animate-pop-in w-full max-w-xs rounded-2xl border border-border-subtle bg-background p-6 text-center shadow-2xl"
+        className="animate-pop-in w-full max-w-xs rounded-2xl bg-surface p-6 text-center shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="text-5xl" aria-hidden>

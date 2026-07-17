@@ -7,6 +7,7 @@ import CountUp from "@/components/CountUp";
 import SessionForm from "@/components/SessionForm";
 import SessionList from "@/components/SessionList";
 import RememberCoach from "@/components/RememberCoach";
+import { ArrowLeft } from "@/components/icons";
 
 export const dynamic = "force-dynamic";
 
@@ -28,12 +29,13 @@ export default async function CoachPage({
       <header>
         <Link
           href="/"
-          className="text-sm text-muted transition-colors hover:text-secondary"
+          className="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-secondary"
         >
-          ← Changer de coach
+          <ArrowLeft className="h-4 w-4" />
+          Changer de coach
         </Link>
         <div className="mt-3 flex items-baseline justify-between gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">{coach.name}</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">{coach.name}</h1>
           <span className="shrink-0 font-mono text-md font-medium tabular-nums text-secondary">
             <CountUp value={total} />
             <span className="font-normal text-muted">

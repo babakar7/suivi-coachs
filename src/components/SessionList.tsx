@@ -11,7 +11,8 @@ import {
   getOvershoot,
   overshootMessage,
 } from "@/lib/targets";
-import { segmentClass } from "@/lib/ui";
+import { cardClass, segmentClass } from "@/lib/ui";
+import { Pencil, Trash2 } from "@/components/icons";
 import type {
   ActionState,
   Equipment,
@@ -99,7 +100,7 @@ function SessionEditForm({
   return (
     <form action={formAction} className="flex w-full flex-col gap-3 py-1">
       <label className="block">
-        <span className="mb-1 block text-2xs font-medium uppercase tracking-[0.06em] text-muted">
+        <span className="mb-1 block text-xs font-medium uppercase tracking-[0.06em] text-secondary">
           Date
         </span>
         <input
@@ -113,7 +114,7 @@ function SessionEditForm({
       </label>
 
       <fieldset>
-        <legend className="mb-1 block text-2xs font-medium uppercase tracking-[0.06em] text-muted">
+        <legend className="mb-1 block text-xs font-medium uppercase tracking-[0.06em] text-secondary">
           Type
         </legend>
         <input type="hidden" name="session_type" value={sessionType} />
@@ -133,7 +134,7 @@ function SessionEditForm({
       </fieldset>
 
       <fieldset>
-        <legend className="mb-1 block text-2xs font-medium uppercase tracking-[0.06em] text-muted">
+        <legend className="mb-1 block text-xs font-medium uppercase tracking-[0.06em] text-secondary">
           Équipement
         </legend>
         <input type="hidden" name="equipment" value={equipment} />
@@ -153,7 +154,7 @@ function SessionEditForm({
       </fieldset>
 
       <label className="block">
-        <span className="mb-1 block text-2xs font-medium uppercase tracking-[0.06em] text-muted">
+        <span className="mb-1 block text-xs font-medium uppercase tracking-[0.06em] text-secondary">
           Heures
         </span>
         <input
@@ -310,16 +311,20 @@ function SessionRow({
       <button
         type="button"
         onClick={() => setEditing(true)}
-        className="min-h-9 shrink-0 rounded-lg px-2.5 text-xs font-medium text-accent transition-colors hover:bg-accent-soft"
+        aria-label="Modifier cette séance"
+        title="Modifier"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-accent transition-colors hover:bg-accent-soft"
       >
-        Modifier
+        <Pencil className="h-4 w-4" />
       </button>
       <button
         type="button"
         onClick={() => setConfirmDelete(true)}
-        className="min-h-9 shrink-0 rounded-lg px-2.5 text-xs font-medium text-muted transition-colors hover:bg-danger/[0.08] hover:text-danger"
+        aria-label="Supprimer cette séance"
+        title="Supprimer"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted transition-colors hover:bg-danger/[0.08] hover:text-danger"
       >
-        Supprimer
+        <Trash2 className="h-4 w-4" />
       </button>
     </li>
   );
@@ -359,7 +364,7 @@ export default function SessionList({
 
   if (sessions.length === 0) {
     return (
-      <p className="rounded-xl border border-border-subtle bg-surface p-6 text-center text-md text-secondary">
+      <p className={`${cardClass} p-6 text-center text-md text-secondary`}>
         Aucune séance pour le moment. Ajoute ta première séance
         ci-dessus&nbsp;!
       </p>
@@ -382,7 +387,7 @@ export default function SessionList({
             onClick={() => setFilter(f.id)}
             className={`min-h-9 shrink-0 rounded-full px-3 text-sm font-medium transition-[background-color,color,transform] duration-150 ease-out-back active:scale-[0.95] ${
               filter === f.id
-                ? "bg-accent text-white"
+                ? "bg-accent text-white shadow-sm"
                 : "bg-chip text-secondary hover:bg-chip-strong"
             }`}
           >
@@ -392,7 +397,7 @@ export default function SessionList({
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-xl border border-border-subtle bg-surface p-6 text-center text-md text-secondary">
+        <p className={`${cardClass} p-6 text-center text-md text-secondary`}>
           Aucune séance dans ce filtre.
         </p>
       ) : (
@@ -401,7 +406,7 @@ export default function SessionList({
             <h3 className="mb-2 px-1 text-xs font-medium uppercase tracking-[0.06em] text-muted">
               {monthLabel(key)}
             </h3>
-            <ul className="overflow-hidden rounded-xl border border-border-subtle bg-surface">
+            <ul className={`overflow-hidden ${cardClass}`}>
               {groupSessions.map((session) => (
                 <SessionRow
                   key={session.id}

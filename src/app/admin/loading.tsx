@@ -1,4 +1,5 @@
 import Skeleton from "@/components/Skeleton";
+import { cardClass } from "@/lib/ui";
 
 export default function AdminLoading() {
   return (
@@ -16,7 +17,7 @@ export default function AdminLoading() {
           {[0, 1].map((i) => (
             <div
               key={i}
-              className="rounded-xl border border-border-subtle bg-surface p-4"
+              className={`${cardClass} p-4`}
             >
               <div className="flex items-baseline justify-between gap-2">
                 <Skeleton className="h-5 w-32" />
@@ -33,7 +34,7 @@ export default function AdminLoading() {
         </div>
 
         {/* Add-coach card */}
-        <Skeleton className="h-[120px] w-full rounded-xl" />
+        <Skeleton className="h-[120px] w-full rounded-2xl" />
       </div>
     </main>
   );

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { adminLogin } from "@/app/actions";
+import { cardClass } from "@/lib/ui";
 import type { ActionState } from "@/lib/types";
 
 export default function LoginForm() {
@@ -11,12 +12,9 @@ export default function LoginForm() {
   );
 
   return (
-    <form
-      action={formAction}
-      className="rounded-xl border border-border-subtle bg-surface p-4"
-    >
+    <form action={formAction} className={`${cardClass} p-4`}>
       <label className="block">
-        <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-muted">
+        <span className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-secondary">
           Mot de passe
         </span>
         <input

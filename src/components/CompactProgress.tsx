@@ -17,6 +17,7 @@ import type { Progress } from "@/lib/types";
 import ProgressBar from "@/components/ProgressBar";
 import ProgressTrack from "@/components/ProgressTrack";
 import CountUp from "@/components/CountUp";
+import { ChevronDown } from "@/components/icons";
 
 export default function CompactProgress({ progress }: { progress: Progress }) {
   const [open, setOpen] = useState(false);
@@ -27,10 +28,8 @@ export default function CompactProgress({ progress }: { progress: Progress }) {
 
   return (
     <section
-      className={`rounded-xl border p-4 ${
-        completed
-          ? "border-success/30 bg-success-soft"
-          : "border-border-subtle bg-surface"
+      className={`rounded-2xl p-4 shadow-card ${
+        completed ? "bg-success-soft" : "bg-surface"
       }`}
     >
       <div className="flex items-baseline justify-between gap-2">
@@ -97,10 +96,13 @@ export default function CompactProgress({ progress }: { progress: Progress }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="mt-3 text-sm font-medium text-accent transition-colors hover:text-accent-strong"
+        className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-accent transition-colors hover:text-accent-strong"
         aria-expanded={open}
       >
         {open ? "Masquer le détail" : "Voir le détail"}
+        <ChevronDown
+          className={`h-4 w-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
       </button>
 
       {open && (

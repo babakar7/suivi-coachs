@@ -9,12 +9,12 @@ export default function HomeLoading() {
           <Skeleton className="mt-3 h-7 w-40" />
         </header>
 
-        <Skeleton className="mb-6 h-[88px] w-full rounded-xl" />
+        <Skeleton className="mb-6 h-[88px] w-full rounded-2xl" />
 
         <div className="flex flex-col gap-3">
-          <Skeleton className="h-[74px] w-full rounded-xl" />
-          <Skeleton className="h-[74px] w-full rounded-xl" />
-          <Skeleton className="h-[74px] w-full rounded-xl" />
+          <Skeleton className="h-[74px] w-full rounded-2xl" />
+          <Skeleton className="h-[74px] w-full rounded-2xl" />
+          <Skeleton className="h-[74px] w-full rounded-2xl" />
         </div>
       </div>
     </main>

@@ -6,6 +6,7 @@ import { LAST_COACH_KEY } from "@/lib/prefs";
 import { GRAND_TOTAL, formatHours, totalHours } from "@/lib/targets";
 import type { Coach, Progress } from "@/lib/types";
 import ProgressTrack from "@/components/ProgressTrack";
+import { ChevronRight } from "@/components/icons";
 
 export { LAST_COACH_KEY };
 
@@ -32,11 +33,11 @@ export default function ContinueBanner({
   return (
     <Link
       href={`/coach/${lastCoach.id}#ajouter-seance`}
-      className="mb-6 block rounded-xl bg-accent px-5 py-4 text-white transition-colors duration-150 hover:bg-accent-strong"
+      className="mb-6 block rounded-2xl bg-gradient-to-r from-accent to-accent-strong px-5 py-4 text-white shadow-card transition-shadow duration-150 hover:shadow-pop"
     >
       <div className="flex min-h-6 items-center justify-between gap-2 text-base font-medium">
         <span>Continuer en tant que {lastCoach.name}</span>
-        <span aria-hidden>→</span>
+        <ChevronRight className="h-5 w-5" />
       </div>
       <div className="mt-2 flex items-center gap-2">
         <ProgressTrack

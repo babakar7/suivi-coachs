@@ -24,7 +24,7 @@ import {
   type Milestone,
 } from "@/lib/milestones";
 import CelebrationOverlay from "@/components/CelebrationOverlay";
-import { segmentClass } from "@/lib/ui";
+import { cardClass, segmentClass } from "@/lib/ui";
 import type { ActionState, Equipment, Progress, SessionType } from "@/lib/types";
 
 const QUICK_HOURS = ["1", "2", "3", "4"];
@@ -133,7 +133,7 @@ export default function SessionForm({
           hours: hoursNum,
         };
       }}
-      className="rounded-xl border border-border-subtle bg-surface p-4 scroll-mt-4"
+      className={`${cardClass} p-4 scroll-mt-4`}
     >
       <h2 className="text-lg font-semibold tracking-tight">
         Ajouter une séance
@@ -141,7 +141,7 @@ export default function SessionForm({
 
       <div className="mt-4 flex flex-col gap-4">
         <fieldset>
-          <legend className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-muted">
+          <legend className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-secondary">
             Date
           </legend>
           <input type="hidden" name="session_date" value={sessionDate} />
@@ -180,7 +180,7 @@ export default function SessionForm({
         </fieldset>
 
         <fieldset>
-          <legend className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-muted">
+          <legend className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-secondary">
             Type de séance
           </legend>
           <input type="hidden" name="session_type" value={sessionType} />
@@ -200,7 +200,7 @@ export default function SessionForm({
         </fieldset>
 
         <fieldset>
-          <legend className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-muted">
+          <legend className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-secondary">
             Heures
           </legend>
           <div className="flex gap-2">
@@ -233,7 +233,7 @@ export default function SessionForm({
         <input type="hidden" name="equipment" value={equipment} />
 
         <fieldset>
-          <legend className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-muted">
+          <legend className="mb-1.5 block text-xs font-medium uppercase tracking-[0.06em] text-secondary">
             Équipement
           </legend>
           <div className="flex gap-2">
@@ -275,7 +275,7 @@ export default function SessionForm({
           key={saved ? "saved" : "idle"}
           type="submit"
           disabled={pending}
-          className={`min-h-12 rounded-lg text-base font-medium text-white transition-[background-color,transform] duration-150 ease-out-back active:scale-[0.98] disabled:opacity-60 ${
+          className={`min-h-12 rounded-lg text-base font-medium text-white shadow-sm transition-[background-color,transform] duration-150 ease-out-back active:scale-[0.98] disabled:opacity-60 ${
             saved ? "animate-chip-pop bg-success" : "bg-accent hover:bg-accent-strong"
           }`}
         >

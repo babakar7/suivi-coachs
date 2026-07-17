@@ -1,4 +1,5 @@
 import Skeleton from "@/components/Skeleton";
+import { cardClass } from "@/lib/ui";
 
 export default function CoachLoading() {
   return (
@@ -13,7 +14,7 @@ export default function CoachLoading() {
         </header>
 
         {/* Form card */}
-        <div className="rounded-xl border border-border-subtle bg-surface p-4">
+        <div className={`${cardClass} p-4`}>
           <Skeleton className="h-5 w-40" />
           <div className="mt-4 flex flex-col gap-4">
             {[0, 1, 2, 3].map((i) => (
@@ -27,12 +28,12 @@ export default function CoachLoading() {
         </div>
 
         {/* Progress card */}
-        <Skeleton className="h-[120px] w-full rounded-xl" />
+        <Skeleton className="h-[120px] w-full rounded-2xl" />
 
         {/* History */}
         <div>
           <Skeleton className="mb-3 h-5 w-28" />
-          <div className="overflow-hidden rounded-xl border border-border-subtle bg-surface">
+          <div className={`overflow-hidden ${cardClass}`}>
             {[0, 1, 2].map((i) => (
               <div
                 key={i}

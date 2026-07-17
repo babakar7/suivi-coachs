@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { addCoach } from "@/app/actions";
+import { cardClass } from "@/lib/ui";
 import type { ActionState } from "@/lib/types";
 
 export default function AddCoachForm() {
@@ -16,10 +17,7 @@ export default function AddCoachForm() {
   }, [state]);
 
   return (
-    <form
-      action={formAction}
-      className="rounded-xl border border-border-subtle bg-surface p-4"
-    >
+    <form action={formAction} className={`${cardClass} p-4`}>
       <h2 className="text-lg font-semibold tracking-tight">
         Ajouter une coach
       </h2>

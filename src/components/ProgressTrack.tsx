@@ -9,7 +9,7 @@ type ProgressTrackProps = {
 
 const TRACK_HEIGHT = {
   sm: "h-1.5",
-  md: "h-2",
+  md: "h-2.5",
   lg: "h-3",
 } as const;
 

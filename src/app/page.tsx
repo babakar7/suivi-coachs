@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getActiveCoaches, getAllProgress } from "@/lib/queries";
 import ContinueBanner from "@/components/ContinueBanner";
 import CoachHomeList from "@/components/CoachHomeList";
+import { cardClass } from "@/lib/ui";
 import type { Progress } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +30,7 @@ export default async function HomePage() {
         <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted">
           Suivi des heures
         </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
           Qui es-tu&nbsp;?
         </h1>
       </header>
@@ -37,7 +38,7 @@ export default async function HomePage() {
       <ContinueBanner coaches={coaches} progressByCoach={progressRecord} />
 
       {coaches.length === 0 ? (
-        <p className="rounded-xl border border-border-subtle bg-surface p-6 text-center text-md text-secondary">
+        <p className={`${cardClass} p-6 text-center text-md text-secondary`}>
           Aucune coach pour le moment. Les coachs sont ajoutées depuis la page
           admin.
         </p>

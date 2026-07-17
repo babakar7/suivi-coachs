@@ -17,6 +17,8 @@ import {
 import { adminLogout, setCoachActive } from "@/app/actions";
 import AddCoachForm from "@/components/AddCoachForm";
 import ProgressTrack from "@/components/ProgressTrack";
+import { ArrowLeft } from "@/components/icons";
+import { cardClass } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -38,11 +40,12 @@ export default async function AdminPage() {
         <div>
           <Link
             href="/"
-            className="text-sm text-muted transition-colors hover:text-secondary"
+            className="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-secondary"
           >
-            ← Accueil
+            <ArrowLeft className="h-4 w-4" />
+            Accueil
           </Link>
-          <h1 className="mt-3 text-2xl font-semibold tracking-tight">
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight">
             Tableau de bord
           </h1>
         </div>
@@ -57,7 +60,7 @@ export default async function AdminPage() {
       </header>
 
       {coaches.length === 0 ? (
-        <p className="rounded-xl border border-border-subtle bg-surface p-6 text-center text-md text-secondary">
+        <p className={`${cardClass} p-6 text-center text-md text-secondary`}>
           Aucune coach pour le moment. Ajoutez la première ci-dessous.
         </p>
       ) : (
@@ -71,7 +74,7 @@ export default async function AdminPage() {
             return (
               <article
                 key={coach.id}
-                className={`rounded-xl border border-border-subtle bg-surface p-4 ${
+                className={`${cardClass} p-4 ${
                   coach.active ? "" : "opacity-55"
                 }`}
               >
